@@ -1,7 +1,7 @@
 package column
 
 import (
-	"errors"
+	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"time"
@@ -15,12 +15,12 @@ type ColumnsFactory struct {
 func (f ColumnsFactory) Create(createDTO CreateDTO) (column Column, err error) {
 	projectId := createDTO.ProjectID
 	if projectId.String() == "" {
-		err = errors.New("invalid project id")
+		return column, appErrors.ValidationError{Field: ProjectIDField, Message: "project id should be in the uuid format"}
 	}
 	columnName := Name{createDTO.Name}
 	err = f.Validate.Struct(columnName)
 	if err != nil {
-		return
+		return column, appErrors.ValidationError{Field: NameField, Message: err.Error()}
 	}
 	projectColumns, err := f.ColumnsRepository.FindForProject(projectId, WithoutDeletedColumns)
 	if err != nil {
@@ -28,18 +28,19 @@ func (f ColumnsFactory) Create(createDTO CreateDTO) (column Column, err error) {
 	}
 	for _, existColumn := range projectColumns.Columns {
 		if existColumn.GetName().String() == columnName.String() {
-			err = errors.New("column with the same name already exists")
+			err = appErrors.ValidationError{Field: NameField, Message: "column with the same name already exists"}
 			break
 		}
 	}
 	if err != nil {
 		return
 	}
+	priority := projectColumns.Len() + 1
 	column = Column{
 		id:        uuid.New(),
 		projectID: projectId,
 		name:      columnName,
-		priority:  projectColumns.Len(),
+		priority:  priority,
 		createdAt: time.Now(),
 	}
 	return column, err

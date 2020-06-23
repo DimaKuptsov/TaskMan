@@ -12,6 +12,10 @@ type EditCommentDTO struct {
 	EditedText string
 }
 
+type DeleteCommentDTO struct {
+	CommentID uuid.UUID
+}
+
 type DeleteTasksCommentsDTO struct {
 	TasksIDs []uuid.UUID
 }

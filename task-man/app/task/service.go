@@ -2,13 +2,34 @@ package task
 
 import (
 	"github.com/DimaKuptsov/task-man/app/comment"
+	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 )
 
 type TasksService struct {
 	Validate        *validator.Validate
 	TasksRepository TasksRepository
 	CommentsService comment.CommentsService
+}
+
+func (ts TasksService) GetById(taskID uuid.UUID) (task Task, err error) {
+	if taskID.String() == "" {
+		return task, appErrors.ValidationError{Field: IDField, Message: "task id should be in the uuid format"}
+	}
+	return ts.TasksRepository.FindById(taskID)
+}
+
+func (ts TasksService) GetForColumn(columnID uuid.UUID) (tasks TasksCollection, err error) {
+	if columnID.String() == "" {
+		return tasks, appErrors.ValidationError{Field: ColumnIDField, Message: "column id should be in the uuid format"}
+	}
+	tasks, err = ts.TasksRepository.FindForColumn(columnID, WithoutDeletedTasks)
+	if err != nil {
+		return tasks, err
+	}
+	tasks.SortByPriority()
+	return tasks, err
 }
 
 func (ts TasksService) CreateTask(createDTO CreateTaskDTO) (task Task, err error) {

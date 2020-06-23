@@ -1,14 +1,35 @@
 package column
 
 import (
+	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	"github.com/DimaKuptsov/task-man/app/task"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 )
 
 type ColumnsService struct {
 	Validate          *validator.Validate
 	ColumnsRepository ColumnsRepository
 	TasksService      task.TasksService
+}
+
+func (cs ColumnsService) GetById(columnID uuid.UUID) (column Column, err error) {
+	if columnID.String() == "" {
+		return column, appErrors.ValidationError{Field: IDField, Message: "column id should be in the uuid format"}
+	}
+	return cs.ColumnsRepository.FindById(columnID)
+}
+
+func (cs ColumnsService) GetForProject(projectID uuid.UUID) (columns ColumnsCollection, err error) {
+	if projectID.String() == "" {
+		return columns, appErrors.ValidationError{Field: ProjectIDField, Message: "project id should be in the uuid format"}
+	}
+	columns, err = cs.ColumnsRepository.FindForProject(projectID, WithoutDeletedColumns)
+	if err != nil {
+		return columns, err
+	}
+	columns.SortByPriority()
+	return columns, err
 }
 
 func (cs ColumnsService) CreateColumn(createDTO CreateDTO) (column Column, err error) {

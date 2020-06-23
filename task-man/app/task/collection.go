@@ -1,6 +1,9 @@
 package task
 
-import "sort"
+import (
+	"encoding/json"
+	"sort"
+)
 
 type TasksCollection struct {
 	Tasks []Task
@@ -18,4 +21,8 @@ func (tc *TasksCollection) Len() int {
 
 func (tc *TasksCollection) Add(task Task) {
 	tc.Tasks = append(tc.Tasks, task)
+}
+
+func (tc TasksCollection) MarshalJSON() ([]byte, error) {
+	return json.Marshal(tc.Tasks)
 }

@@ -18,7 +18,7 @@ func (action UpdateColumnAction) Execute() (updatedColumn Column, err error) {
 		}
 	}
 	columnsForUpdate := ColumnsCollection{}
-	if action.DTO.Priority != updatedColumn.GetPriority() {
+	if action.DTO.Priority != 0 && action.DTO.Priority != updatedColumn.GetPriority() {
 		projectColumns, err := action.Repository.FindForProject(updatedColumn.GetProjectID(), WithoutDeletedColumns)
 		if err != nil {
 			return updatedColumn, err
@@ -40,8 +40,5 @@ func (action UpdateColumnAction) Execute() (updatedColumn Column, err error) {
 	}
 	columnsForUpdate.Add(updatedColumn)
 	err = action.Repository.BatchUpdate(columnsForUpdate)
-	if err != nil {
-		return
-	}
 	return updatedColumn, err
 }

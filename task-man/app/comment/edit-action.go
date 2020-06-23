@@ -1,6 +1,9 @@
 package comment
 
-import "github.com/go-playground/validator/v10"
+import (
+	appErrors "github.com/DimaKuptsov/task-man/app/error"
+	"github.com/go-playground/validator/v10"
+)
 
 type EditCommentAction struct {
 	DTO                EditCommentDTO
@@ -15,7 +18,7 @@ func (action EditCommentAction) Execute() (editedComment Comment, err error) {
 	editedText := Text{action.DTO.EditedText}
 	err = validator.New().Struct(editedComment)
 	if err != nil {
-		return
+		return editedComment, appErrors.ValidationError{Field: TextField, Message: err.Error()}
 	}
 	err = editedComment.ChangeText(editedText)
 	if err != nil {

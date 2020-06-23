@@ -2,12 +2,19 @@ package column
 
 import (
 	"database/sql"
+	"encoding/json"
+	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"time"
 )
 
-const DefaultColumnName = "Default column"
+const (
+	DefaultColumnName = "Default column"
+	IDField           = "id"
+	NameField         = "name"
+	ProjectIDField    = "project id"
+)
 
 type Column struct {
 	id        uuid.UUID
@@ -34,7 +41,7 @@ func (c *Column) GetName() Name {
 func (c *Column) ChangeName(name Name) error {
 	err := validator.New().Struct(name)
 	if err != nil {
-		return err
+		return appErrors.ValidationError{Field: NameField, Message: err.Error()}
 	}
 	c.name = name
 	return c.markUpdated()
@@ -59,4 +66,25 @@ func (c *Column) MarkDeleted() error {
 
 func (c *Column) markUpdated() error {
 	return c.updatedAt.Scan(time.Now())
+}
+
+func (c Column) MarshalJSON() ([]byte, error) {
+	jsonColumn := struct {
+		ID        string `json:"id"`
+		ProjectID string `json:"project_id"`
+		Name      string `json:"name"`
+		Priority  int    `json:"priority"`
+		CreatedAt string `json:"created_at"`
+		UpdatedAt string `json:"updated_at,omitempty"`
+	}{
+		ID:        c.id.String(),
+		ProjectID: c.projectID.String(),
+		Name:      c.name.String(),
+		Priority:  c.priority,
+		CreatedAt: c.createdAt.Format(time.RFC3339),
+	}
+	if c.updatedAt.Valid {
+		jsonColumn.UpdatedAt = c.updatedAt.Time.Format(time.RFC3339)
+	}
+	return json.Marshal(&jsonColumn)
 }

@@ -1,6 +1,9 @@
 package column
 
-import "sort"
+import (
+	"encoding/json"
+	"sort"
+)
 
 type ColumnsCollection struct {
 	Columns []Column
@@ -18,4 +21,8 @@ func (cc *ColumnsCollection) Len() int {
 
 func (cc *ColumnsCollection) Add(column Column) {
 	cc.Columns = append(cc.Columns, column)
+}
+
+func (cc ColumnsCollection) MarshalJSON() ([]byte, error) {
+	return json.Marshal(cc.Columns)
 }

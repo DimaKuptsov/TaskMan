@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"errors"
 	"github.com/DimaKuptsov/task-man/app/project"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
@@ -13,20 +14,20 @@ type ProjectsRepositoryMock struct {
 func ProjectRepoMock() ProjectsRepositoryMock {
 	factory := project.ProjectsFactory{Validate: validator.New()}
 	firstProject, _ := factory.Create(project.CreateDTO{Name: "First project"})
-	//secondProject, _ := factory.Create(project.CreateDTO{Name: "Second project"})
-	//thirdProject, _ := factory.Create(project.CreateDTO{Name: "Third project"})
-	//fourthProject, _ := factory.Create(project.CreateDTO{Name: "Fourth project"})
-	//fifthProject, _ := factory.Create(project.CreateDTO{Name: "Fifth project"})
-	//sixthProject, _ := factory.Create(project.CreateDTO{Name: "Sixth project"})
-	//seventhProject, _ := factory.Create(project.CreateDTO{Name: "Seventh project"})
+	secondProject, _ := factory.Create(project.CreateDTO{Name: "Second project"})
+	thirdProject, _ := factory.Create(project.CreateDTO{Name: "Third project"})
+	fourthProject, _ := factory.Create(project.CreateDTO{Name: "Fourth project"})
+	fifthProject, _ := factory.Create(project.CreateDTO{Name: "Fifth project"})
+	sixthProject, _ := factory.Create(project.CreateDTO{Name: "Sixth project"})
+	seventhProject, _ := factory.Create(project.CreateDTO{Name: "Seventh project"})
 	fakeProjects := map[string]project.Project{
-		firstProject.GetID().String(): firstProject,
-		//secondProject.GetID().String():  secondProject,
-		//thirdProject.GetID().String():   thirdProject,
-		//fourthProject.GetID().String():  fourthProject,
-		//fifthProject.GetID().String():   fifthProject,
-		//sixthProject.GetID().String():   sixthProject,
-		//seventhProject.GetID().String(): seventhProject,
+		firstProject.GetID().String():   firstProject,
+		secondProject.GetID().String():  secondProject,
+		thirdProject.GetID().String():   thirdProject,
+		fourthProject.GetID().String():  fourthProject,
+		fifthProject.GetID().String():   fifthProject,
+		sixthProject.GetID().String():   sixthProject,
+		seventhProject.GetID().String(): seventhProject,
 	}
 	return ProjectsRepositoryMock{
 		projects: fakeProjects,
@@ -37,21 +38,27 @@ func (r ProjectsRepositoryMock) All() map[string]project.Project {
 	return r.projects
 }
 
-func (r ProjectsRepositoryMock) FindNotDeleted() ([]project.Project, error) {
-	var notDeleted []project.Project
+func (r ProjectsRepositoryMock) FindNotDeleted() (project.ProjectsCollection, error) {
+	notDeleted := project.ProjectsCollection{}
 	for _, fakeProject := range r.projects {
 		if !fakeProject.IsDeleted() {
-			notDeleted = append(notDeleted, fakeProject)
+			notDeleted.Add(fakeProject)
 		}
 	}
 	return notDeleted, nil
 }
 func (r ProjectsRepositoryMock) FindById(id uuid.UUID) (project project.Project, err error) {
+	exist := false
 	for projectId, fakeProject := range r.projects {
 		if projectId == id.String() {
 			project = fakeProject
+			exist = true
 			break
 		}
+	}
+	if !exist {
+		err = errors.New("not exist")
+		return project, err
 	}
 	return project, err
 }

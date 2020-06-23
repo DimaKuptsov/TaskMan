@@ -1,7 +1,7 @@
 package task
 
 import (
-	"errors"
+	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"time"
@@ -15,28 +15,29 @@ type TasksFactory struct {
 func (f TasksFactory) Create(createDTO CreateTaskDTO) (task Task, err error) {
 	columnId := createDTO.ColumnID
 	if columnId.String() == "" {
-		err = errors.New("invalid column id")
+		return task, appErrors.ValidationError{Field: IDField, Message: "task id should be in the uuid format"}
 	}
 	taskName := Name{createDTO.Name}
 	err = f.Validate.Struct(taskName)
 	if err != nil {
-		return
+		return task, appErrors.ValidationError{Field: NameField, Message: err.Error()}
 	}
 	taskDescription := Description{createDTO.Description}
 	err = f.Validate.Struct(taskDescription)
 	if err != nil {
-		return
+		return task, appErrors.ValidationError{Field: DescriptionField, Message: err.Error()}
 	}
 	columnTasks, err := f.TasksRepository.FindForColumn(createDTO.ColumnID, WithoutDeletedTasks)
 	if err != nil {
 		return
 	}
+	priority := columnTasks.Len() + 1
 	task = Task{
 		id:          uuid.New(),
 		columnID:    columnId,
 		name:        taskName,
 		description: taskDescription,
-		priority:    columnTasks.Len(),
+		priority:    priority,
 		createdAt:   time.Now(),
 	}
 	return task, err

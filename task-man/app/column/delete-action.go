@@ -1,7 +1,7 @@
 package column
 
 import (
-	"errors"
+	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	"github.com/DimaKuptsov/task-man/app/task"
 	"github.com/google/uuid"
 )
@@ -23,14 +23,14 @@ func (action DeleteColumnAction) Execute() error {
 	}
 	const minProjectColumnsCount = 1
 	if notDeletedProjectsColumns.Len() == minProjectColumnsCount {
-		return errors.New("can't delete last column")
+		return appErrors.ValidationError{Field: IDField, Message: "can't delete last column"}
 	}
 	err = action.deleteColumn(columnForDelete)
 	if err != nil {
 		return err
 	}
-	previousColumnID := action.getPreviousColumnID(columnForDelete, notDeletedProjectsColumns)
-	return action.manageDeleteColumnTasks(columnForDelete, previousColumnID)
+	columnIDForTaskTransfer := action.getColumnIDForTaskTransfer(columnForDelete, notDeletedProjectsColumns)
+	return action.manageDeleteColumnTasks(columnForDelete, columnIDForTaskTransfer)
 }
 
 func (action DeleteColumnAction) getNotDeletedProjectsColumns(columnForDelete Column) (columns ColumnsCollection, err error) {
@@ -50,31 +50,38 @@ func (action DeleteColumnAction) deleteColumn(columnForDelete Column) error {
 	return action.ColumnsRepository.Update(columnForDelete)
 }
 
-func (action DeleteColumnAction) getPreviousColumnID(columnForCompare Column, columns ColumnsCollection) uuid.UUID {
-	var previousColumnID uuid.UUID
+func (action DeleteColumnAction) getColumnIDForTaskTransfer(columnForCompare Column, columns ColumnsCollection) uuid.UUID {
+	var columnForTransferID uuid.UUID
+	columns.SortByPriority()
 	for i, projectColumn := range columns.Columns {
 		columnHasHighestPriority := i == 0
 		currentColumnWillBeDeleted := projectColumn.GetID() == columnForCompare.GetID()
+		lessPriorityColumnIndex := i + 1
 		if columnHasHighestPriority && currentColumnWillBeDeleted {
+			if lessPriorityColumnIndex < columns.Len() {
+				columnForTransfer := columns.Columns[lessPriorityColumnIndex]
+				columnForTransferID = columnForTransfer.GetID()
+			}
 			break
 		}
+		highestPriorityColumnIndex := i - 1
 		if !columnHasHighestPriority && currentColumnWillBeDeleted {
-			previousColumn := columns.Columns[i-1]
-			previousColumnID = previousColumn.GetID()
+			columnForTransfer := columns.Columns[highestPriorityColumnIndex]
+			columnForTransferID = columnForTransfer.GetID()
 		}
 	}
-	return previousColumnID
+	return columnForTransferID
 }
 
-func (action DeleteColumnAction) manageDeleteColumnTasks(columnForDelete Column, previousColumnID uuid.UUID) error {
+func (action DeleteColumnAction) manageDeleteColumnTasks(columnForDelete Column, columnIDForTaskTransfer uuid.UUID) error {
 	columnTasks, err := action.TasksService.TasksRepository.FindForColumn(columnForDelete.GetID(), task.WithDeletedTasks)
 	if err != nil {
 		return err
 	}
-	changeTasksColumnDTO := task.ChangeTasksColumnDTO{ColumnID: previousColumnID}
+	changeTasksColumnDTO := task.ChangeTasksColumnDTO{ColumnID: columnIDForTaskTransfer}
 	deleteTasksDTO := task.DeleteTasksDTO{}
 	for _, columnTask := range columnTasks.Tasks {
-		if previousColumnID.String() != "" {
+		if columnIDForTaskTransfer.String() != "" {
 			changeTasksColumnDTO.AddTaskId(columnTask.GetID())
 		} else {
 			deleteTasksDTO.AddTaskId(columnTask.GetID())
