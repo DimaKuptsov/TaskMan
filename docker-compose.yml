@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  task-man-go:
+    container_name: "task-man-go"
+    build: "./etc/go"
+    volumes:
+      - "./task-man:/go/src/task-man"
+    working_dir: "/go/src/task-man"
+    command: "go run main.go"
+    ports:
+      - 80:80
