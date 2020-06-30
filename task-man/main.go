@@ -1,21 +1,21 @@
 package main
 
 import (
-	"fmt"
+	"github.com/DimaKuptsov/task-man/handlers"
 	"log"
 	"net/http"
 	"os"
 )
 
 func main() {
-	http.HandleFunc("/", test)
-	err := http.ListenAndServe(":80", nil)
+	router := handlers.NewRouter()
+	server := &http.Server{
+		Addr:    ":80",
+		Handler: router,
+	}
+	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatalf("%s", err.Error())
 		os.Exit(1)
 	}
-}
-
-func test(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Test page")
 }

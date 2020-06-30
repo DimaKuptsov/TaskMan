@@ -12,8 +12,5 @@ func (action CreateCommentAction) Execute() (comment Comment, err error) {
 		return
 	}
 	err = action.CommentsRepository.Save(comment)
-	if err != nil {
-		return
-	}
 	return comment, err
 }

@@ -1,6 +1,9 @@
 package comment
 
-import "sort"
+import (
+	"encoding/json"
+	"sort"
+)
 
 type CommentsCollection struct {
 	Comments []Comment
@@ -18,4 +21,8 @@ func (cc *CommentsCollection) Len() int {
 
 func (cc *CommentsCollection) Add(comment Comment) {
 	cc.Comments = append(cc.Comments, comment)
+}
+
+func (cc CommentsCollection) MarshalJSON() ([]byte, error) {
+	return json.Marshal(cc.Comments)
 }

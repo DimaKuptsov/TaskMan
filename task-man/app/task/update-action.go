@@ -1,11 +1,16 @@
 package task
 
+import appErrors "github.com/DimaKuptsov/task-man/app/error"
+
 type UpdateTaskAction struct {
 	DTO        UpdateDTO
 	Repository TasksRepository
 }
 
 func (action UpdateTaskAction) Execute() (updatedTask Task, err error) {
+	if action.DTO.ID.String() == "" {
+		return updatedTask, appErrors.ValidationError{Field: IDField, Message: "task id should be in the uuid format"}
+	}
 	updatedTask, err = action.Repository.FindById(action.DTO.ID)
 	if err != nil {
 		return
@@ -25,7 +30,7 @@ func (action UpdateTaskAction) Execute() (updatedTask Task, err error) {
 		}
 	}
 	tasksForUpdate := TasksCollection{}
-	if action.DTO.Priority != updatedTask.GetPriority() {
+	if action.DTO.Priority != 0 && action.DTO.Priority != updatedTask.GetPriority() {
 		columnTasks, err := action.Repository.FindForColumn(updatedTask.GetColumnID(), WithoutDeletedTasks)
 		if err != nil {
 			return updatedTask, err
