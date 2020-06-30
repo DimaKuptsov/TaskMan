@@ -6,14 +6,11 @@ type DeleteCommentAction struct {
 }
 
 func (action DeleteCommentAction) Execute() error {
-	comment, err := action.CommentsRepository.FindById(action.DTO.CommentID)
+	comment, err := action.CommentsRepository.FindById(action.DTO.CommentID, WithoutDeletedComments)
 	if err != nil {
 		return nil
 	}
-	err = comment.MarkDeleted()
-	if err != nil {
-		return err
-	}
+	comment.MarkDeleted()
 	commentsForUpdate := CommentsCollection{}
 	commentsForUpdate.Add(comment)
 	return action.CommentsRepository.BatchUpdate(commentsForUpdate)

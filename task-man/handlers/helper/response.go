@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/DimaKuptsov/task-man/handlers/error"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -12,10 +13,19 @@ const (
 	DefaultCharset = "utf-8"
 )
 
-func SendResponse(w http.ResponseWriter, statusCode int, response interface{}) {
+type ResponseSender struct {
+	logger *zap.Logger
+}
+
+func NewResponseSender(logger *zap.Logger) ResponseSender {
+	return ResponseSender{logger: logger}
+}
+
+func (rs ResponseSender) SendResponse(w http.ResponseWriter, statusCode int, response interface{}) {
+	defer rs.logger.Sync()
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
-		//TODO log
+		rs.logger.Error(err.Error())
 		statusCode = http.StatusInternalServerError
 	}
 	contentType := fmt.Sprintf("%s; carset=%s", JsonType, DefaultCharset)
@@ -23,10 +33,10 @@ func SendResponse(w http.ResponseWriter, statusCode int, response interface{}) {
 	w.WriteHeader(statusCode)
 	_, err = w.Write(jsonResponse)
 	if err != nil {
-		//TODO log
+		rs.logger.Error(err.Error())
 	}
 }
 
-func SendErrorResponse(w http.ResponseWriter, err error.HttpError) {
-	SendResponse(w, err.GetStatusCode(), err)
+func (rs ResponseSender) SendErrorResponse(w http.ResponseWriter, err error.HttpError) {
+	rs.SendResponse(w, err.GetStatusCode(), err)
 }

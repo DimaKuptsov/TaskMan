@@ -5,19 +5,21 @@ import (
 	"github.com/DimaKuptsov/task-man/app/task"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type ColumnsService struct {
 	Validate          *validator.Validate
 	ColumnsRepository ColumnsRepository
 	TasksService      task.TasksService
+	Logger            *zap.Logger
 }
 
 func (cs ColumnsService) GetById(columnID uuid.UUID) (column Column, err error) {
 	if columnID.String() == "" {
 		return column, appErrors.ValidationError{Field: IDField, Message: "column id should be in the uuid format"}
 	}
-	return cs.ColumnsRepository.FindById(columnID)
+	return cs.ColumnsRepository.FindById(columnID, WithoutDeletedColumns)
 }
 
 func (cs ColumnsService) GetForProject(projectID uuid.UUID) (columns ColumnsCollection, err error) {
@@ -64,6 +66,7 @@ func (cs ColumnsService) DeleteProjectColumns(deleteDTO DeleteProjectColumnsDTO)
 		DTO:               deleteDTO,
 		ColumnsRepository: cs.ColumnsRepository,
 		TasksService:      cs.TasksService,
+		Logger:            cs.Logger,
 	}
 	return deleteAction.Execute()
 }

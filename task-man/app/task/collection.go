@@ -19,10 +19,17 @@ func (tc *TasksCollection) Len() int {
 	return len(tc.Tasks)
 }
 
-func (tc *TasksCollection) Add(task Task) {
-	tc.Tasks = append(tc.Tasks, task)
+func (tc *TasksCollection) Add(task ...Task) {
+	tc.Tasks = append(tc.Tasks, task...)
+}
+
+func (tc TasksCollection) IsEmpty() bool {
+	return len(tc.Tasks) == 0
 }
 
 func (tc TasksCollection) MarshalJSON() ([]byte, error) {
+	if tc.IsEmpty() {
+		return []byte("{}"), nil
+	}
 	return json.Marshal(tc.Tasks)
 }

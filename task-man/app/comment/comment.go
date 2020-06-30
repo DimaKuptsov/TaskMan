@@ -1,9 +1,9 @@
 package comment
 
 import (
-	"database/sql"
 	"encoding/json"
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
+	"github.com/go-pg/pg/v10"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"time"
@@ -16,24 +16,24 @@ const (
 )
 
 type Comment struct {
-	id        uuid.UUID
-	taskID    uuid.UUID
-	text      Text
-	createdAt time.Time
-	updatedAt sql.NullTime
-	deletedAt sql.NullTime
+	ID        uuid.UUID   `pg:"type:uuid"`
+	TaskID    uuid.UUID   `pg:"type:uuid"`
+	Text      Text        `pg:"type:varchar"`
+	CreatedAt time.Time   `pg:"type:timestamp"`
+	UpdatedAt pg.NullTime `pg:"type:timestamp"`
+	DeletedAt pg.NullTime `pg:"type:timestamp"`
 }
 
 func (c *Comment) GetID() uuid.UUID {
-	return c.id
+	return c.ID
 }
 
 func (c *Comment) GetTaskID() uuid.UUID {
-	return c.taskID
+	return c.TaskID
 }
 
 func (c *Comment) GetText() Text {
-	return c.text
+	return c.Text
 }
 
 func (c *Comment) ChangeText(text Text) error {
@@ -41,24 +41,25 @@ func (c *Comment) ChangeText(text Text) error {
 	if err != nil {
 		return appErrors.ValidationError{Field: TextField, Message: err.Error()}
 	}
-	c.text = text
-	return c.markUpdated()
+	c.Text = text
+	c.markUpdated()
+	return nil
 }
 
 func (c *Comment) GetCreateTime() time.Time {
-	return c.createdAt
+	return c.CreatedAt
 }
 
 func (c *Comment) IsDeleted() bool {
-	return c.deletedAt.Valid
+	return !c.DeletedAt.IsZero()
 }
 
-func (c *Comment) MarkDeleted() error {
-	return c.deletedAt.Scan(time.Now())
+func (c *Comment) MarkDeleted() {
+	c.DeletedAt = pg.NullTime{Time: time.Now()}
 }
 
-func (c *Comment) markUpdated() error {
-	return c.updatedAt.Scan(time.Now())
+func (c *Comment) markUpdated() {
+	c.UpdatedAt = pg.NullTime{Time: time.Now()}
 }
 
 func (c Comment) MarshalJSON() ([]byte, error) {
@@ -69,13 +70,13 @@ func (c Comment) MarshalJSON() ([]byte, error) {
 		CreatedAt string `json:"created_at"`
 		UpdatedAt string `json:"updated_at,omitempty"`
 	}{
-		ID:        c.id.String(),
-		TaskID:    c.taskID.String(),
-		Text:      c.text.String(),
-		CreatedAt: c.createdAt.Format(time.RFC3339),
+		ID:        c.ID.String(),
+		TaskID:    c.TaskID.String(),
+		Text:      c.Text.String(),
+		CreatedAt: c.CreatedAt.Format(time.RFC3339),
 	}
-	if c.updatedAt.Valid {
-		jsonColumn.UpdatedAt = c.updatedAt.Time.Format(time.RFC3339)
+	if !c.UpdatedAt.IsZero() {
+		jsonColumn.UpdatedAt = c.UpdatedAt.Time.Format(time.RFC3339)
 	}
 	return json.Marshal(&jsonColumn)
 }

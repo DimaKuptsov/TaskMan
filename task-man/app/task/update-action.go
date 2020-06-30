@@ -11,7 +11,7 @@ func (action UpdateTaskAction) Execute() (updatedTask Task, err error) {
 	if action.DTO.ID.String() == "" {
 		return updatedTask, appErrors.ValidationError{Field: IDField, Message: "task id should be in the uuid format"}
 	}
-	updatedTask, err = action.Repository.FindById(action.DTO.ID)
+	updatedTask, err = action.Repository.FindById(action.DTO.ID, WithoutDeletedTasks)
 	if err != nil {
 		return
 	}
@@ -37,18 +37,12 @@ func (action UpdateTaskAction) Execute() (updatedTask Task, err error) {
 		}
 		for _, task := range columnTasks.Tasks {
 			if task.GetPriority() == action.DTO.Priority {
-				err = updatedTask.ChangePriority(task.GetPriority())
-				if err != nil {
-					return updatedTask, err
-				}
-				err = task.ChangePriority(action.DTO.Priority)
-				if err != nil {
-					return updatedTask, err
-				}
+				task.ChangePriority(updatedTask.GetPriority())
 				tasksForUpdate.Add(task)
 				break
 			}
 		}
+		updatedTask.ChangePriority(action.DTO.Priority)
 	}
 	tasksForUpdate.Add(updatedTask)
 	err = action.Repository.BatchUpdate(tasksForUpdate)

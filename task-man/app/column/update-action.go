@@ -6,7 +6,7 @@ type UpdateColumnAction struct {
 }
 
 func (action UpdateColumnAction) Execute() (updatedColumn Column, err error) {
-	updatedColumn, err = action.Repository.FindById(action.DTO.ID)
+	updatedColumn, err = action.Repository.FindById(action.DTO.ID, WithoutDeletedColumns)
 	if err != nil {
 		return
 	}
@@ -25,18 +25,12 @@ func (action UpdateColumnAction) Execute() (updatedColumn Column, err error) {
 		}
 		for _, column := range projectColumns.Columns {
 			if column.GetPriority() == action.DTO.Priority {
-				err = updatedColumn.ChangePriority(column.GetPriority())
-				if err != nil {
-					return updatedColumn, err
-				}
-				err = column.ChangePriority(action.DTO.Priority)
-				if err != nil {
-					return updatedColumn, err
-				}
+				column.ChangePriority(updatedColumn.GetPriority())
 				columnsForUpdate.Add(column)
 				break
 			}
 		}
+		updatedColumn.ChangePriority(action.DTO.Priority)
 	}
 	columnsForUpdate.Add(updatedColumn)
 	err = action.Repository.BatchUpdate(columnsForUpdate)

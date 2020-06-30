@@ -7,32 +7,43 @@ import (
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	httpErrors "github.com/DimaKuptsov/task-man/handlers/error"
 	"github.com/DimaKuptsov/task-man/handlers/helper"
+	"github.com/DimaKuptsov/task-man/logger"
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"net/http"
 )
 
 func GetForTask(w http.ResponseWriter, r *http.Request) {
+	appLogger := logger.GetWithContext(r.Context())
+	defer appLogger.Sync()
+	responseSender := helper.NewResponseSender(appLogger)
 	id := chi.URLParam(r, TaskIDField)
 	if id == "" {
 		err := errors.New(fmt.Sprintf("missing required field \"%s\"", TaskIDField))
-		helper.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
+		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}
 	taskID, err := uuid.Parse(id)
 	if err != nil || taskID.String() == "" {
 		err = errors.New(fmt.Sprintf("invalid parameter \"%s\"", TaskIDField))
-		helper.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
+		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}
-	comments, err := app.GetAppService().CommentsService().GetForTask(taskID)
+	appService, err := app.GetAppService()
+	if err != nil {
+		appLogger.Error(err.Error())
+		responseSender.SendErrorResponse(w, httpErrors.NewInternalServerError(err))
+		return
+	}
+	comments, err := appService.CommentsService().GetForTask(taskID)
 	if err != nil {
 		if validationErr, ok := err.(appErrors.ValidationError); ok {
-			helper.SendErrorResponse(w, httpErrors.NewBadRequestError(validationErr))
+			responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(validationErr))
 			return
 		}
-		helper.SendErrorResponse(w, httpErrors.NewInternalServerError(err))
+		appLogger.Error(err.Error())
+		responseSender.SendErrorResponse(w, httpErrors.NewInternalServerError(err))
 		return
 	}
-	helper.SendResponse(w, http.StatusOK, comments)
+	responseSender.SendResponse(w, http.StatusOK, comments)
 }

@@ -9,14 +9,11 @@ type DeleteProjectAction struct {
 }
 
 func (action DeleteProjectAction) Execute() error {
-	project, err := action.Repository.FindById(action.DTO.ID)
+	project, err := action.Repository.FindById(action.DTO.ID, WithoutDeletedProjects)
 	if err != nil {
 		return nil
 	}
-	err = project.MarkDeleted()
-	if err != nil {
-		return err
-	}
+	project.MarkDeleted()
 	deleteProjectColumnsDTO := column.DeleteProjectColumnsDTO{ProjectID: project.GetID()}
 	err = action.Repository.Update(project)
 	if err != nil {

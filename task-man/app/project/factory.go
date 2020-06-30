@@ -23,10 +23,10 @@ func (f ProjectsFactory) Create(createDTO CreateDTO) (project Project, err error
 		return project, appErrors.ValidationError{Field: DescriptionField, Message: err.Error()}
 	}
 	project = Project{
-		id:          uuid.New(),
-		name:        projectName,
-		description: description,
-		createdAt:   time.Now(),
+		ID:          uuid.New(),
+		Name:        projectName,
+		Description: description,
+		CreatedAt:   time.Now(),
 	}
 	return project, err
 }

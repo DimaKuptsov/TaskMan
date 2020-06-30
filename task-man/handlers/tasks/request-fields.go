@@ -1,7 +1,7 @@
 package tasks
 
 const (
-	ColumnIDField        = "projectId"
+	ColumnIDField        = "columnId"
 	TaskIDField          = "id"
 	TaskNameField        = "name"
 	TaskDescriptionField = "description"

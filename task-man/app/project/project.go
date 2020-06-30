@@ -1,9 +1,9 @@
 package project
 
 import (
-	"database/sql"
 	"encoding/json"
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
+	"github.com/go-pg/pg/v10"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"time"
@@ -16,20 +16,20 @@ const (
 )
 
 type Project struct {
-	id          uuid.UUID
-	name        Name
-	description Description
-	createdAt   time.Time
-	updatedAt   sql.NullTime
-	deletedAt   sql.NullTime
+	ID          uuid.UUID   `pg:"type:uuid"`
+	Name        Name        `pg:"type:varchar"`
+	Description Description `pg:"type:varchar"`
+	CreatedAt   time.Time   `pg:"type:timestamp"`
+	UpdatedAt   pg.NullTime `pg:"type:timestamp"`
+	DeletedAt   pg.NullTime `pg:"type:timestamp"`
 }
 
 func (p *Project) GetID() uuid.UUID {
-	return p.id
+	return p.ID
 }
 
 func (p *Project) GetName() Name {
-	return p.name
+	return p.Name
 }
 
 func (p *Project) ChangeName(name Name) error {
@@ -37,12 +37,13 @@ func (p *Project) ChangeName(name Name) error {
 	if err != nil {
 		return appErrors.ValidationError{Field: NameField, Message: err.Error()}
 	}
-	p.name = name
-	return p.markUpdated()
+	p.Name = name
+	p.markUpdated()
+	return nil
 }
 
 func (p *Project) GetDescription() Description {
-	return p.description
+	return p.Description
 }
 
 func (p *Project) ChangeDescription(description Description) error {
@@ -50,24 +51,25 @@ func (p *Project) ChangeDescription(description Description) error {
 	if err != nil {
 		return appErrors.ValidationError{Field: DescriptionField, Message: err.Error()}
 	}
-	p.description = description
-	return p.markUpdated()
+	p.Description = description
+	p.markUpdated()
+	return nil
 }
 
 func (p *Project) GetCreateTime() time.Time {
-	return p.createdAt
+	return p.CreatedAt
 }
 
 func (p *Project) IsDeleted() bool {
-	return p.deletedAt.Valid
+	return !p.DeletedAt.IsZero()
 }
 
-func (p *Project) MarkDeleted() error {
-	return p.deletedAt.Scan(time.Now())
+func (p *Project) MarkDeleted() {
+	p.DeletedAt = pg.NullTime{Time: time.Now()}
 }
 
-func (p *Project) markUpdated() error {
-	return p.updatedAt.Scan(time.Now())
+func (p *Project) markUpdated() {
+	p.UpdatedAt = pg.NullTime{Time: time.Now()}
 }
 
 func (p Project) MarshalJSON() ([]byte, error) {
@@ -78,13 +80,13 @@ func (p Project) MarshalJSON() ([]byte, error) {
 		CreatedAt   string `json:"created_at"`
 		UpdatedAt   string `json:"updated_at,omitempty"`
 	}{
-		ID:          p.id.String(),
-		Name:        p.name.String(),
-		Description: p.description.String(),
-		CreatedAt:   p.createdAt.Format(time.RFC3339),
+		ID:          p.ID.String(),
+		Name:        p.Name.String(),
+		Description: p.Description.String(),
+		CreatedAt:   p.CreatedAt.Format(time.RFC3339),
 	}
-	if p.updatedAt.Valid {
-		jsonProject.UpdatedAt = p.updatedAt.Time.Format(time.RFC3339)
+	if !p.UpdatedAt.IsZero() {
+		jsonProject.UpdatedAt = p.UpdatedAt.Time.Format(time.RFC3339)
 	}
 	return json.Marshal(&jsonProject)
 }

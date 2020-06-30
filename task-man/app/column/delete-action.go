@@ -13,7 +13,7 @@ type DeleteColumnAction struct {
 }
 
 func (action DeleteColumnAction) Execute() error {
-	columnForDelete, err := action.ColumnsRepository.FindById(action.DTO.ID)
+	columnForDelete, err := action.ColumnsRepository.FindById(action.DTO.ID, WithoutDeletedColumns)
 	if err != nil {
 		return err
 	}
@@ -43,10 +43,7 @@ func (action DeleteColumnAction) getNotDeletedProjectsColumns(columnForDelete Co
 }
 
 func (action DeleteColumnAction) deleteColumn(columnForDelete Column) error {
-	err := columnForDelete.MarkDeleted()
-	if err != nil {
-		return err
-	}
+	columnForDelete.MarkDeleted()
 	return action.ColumnsRepository.Update(columnForDelete)
 }
 

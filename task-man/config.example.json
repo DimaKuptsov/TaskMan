@@ -1,0 +1,16 @@
+{
+  "app_name": "task-man",
+  "env": "dev",
+  "listen_url": ":80",
+  "postgres": {
+    "host": "127.0.0.1",
+    "port": "5432",
+    "database": "task-man",
+    "user": "root",
+    "password": "root",
+    "pool_size": 10,
+    "max_retries": 5,
+    "read_timeout": "10s",
+    "write_timeout": "10s"
+  }
+}

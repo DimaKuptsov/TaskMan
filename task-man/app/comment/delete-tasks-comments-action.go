@@ -8,15 +8,11 @@ type DeleteTasksCommentsAction struct {
 func (action DeleteTasksCommentsAction) Execute() error {
 	taskComments, err := action.CommentsRepository.FindForTasks(action.DTO.TasksIDs, WithoutDeletedComments)
 	if err != nil {
-		return nil
+		return err
 	}
 	commentsForUpdate := CommentsCollection{}
 	for _, comment := range taskComments.Comments {
-		err = comment.MarkDeleted()
-		if err != nil {
-			//TODO log
-			continue
-		}
+		comment.MarkDeleted()
 		commentsForUpdate.Add(comment)
 	}
 	return action.CommentsRepository.BatchUpdate(commentsForUpdate)

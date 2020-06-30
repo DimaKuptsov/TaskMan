@@ -11,7 +11,7 @@ type EditCommentAction struct {
 }
 
 func (action EditCommentAction) Execute() (editedComment Comment, err error) {
-	editedComment, err = action.CommentsRepository.FindById(action.DTO.CommentID)
+	editedComment, err = action.CommentsRepository.FindById(action.DTO.CommentID, WithoutDeletedComments)
 	if err != nil {
 		return
 	}
@@ -24,6 +24,8 @@ func (action EditCommentAction) Execute() (editedComment Comment, err error) {
 	if err != nil {
 		return
 	}
-	err = action.CommentsRepository.Save(editedComment)
+	commentsForUpdate := CommentsCollection{}
+	commentsForUpdate.Add(editedComment)
+	err = action.CommentsRepository.BatchUpdate(commentsForUpdate)
 	return editedComment, err
 }

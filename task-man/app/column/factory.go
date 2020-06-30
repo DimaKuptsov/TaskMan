@@ -37,11 +37,11 @@ func (f ColumnsFactory) Create(createDTO CreateDTO) (column Column, err error) {
 	}
 	priority := projectColumns.Len() + 1
 	column = Column{
-		id:        uuid.New(),
-		projectID: projectId,
-		name:      columnName,
-		priority:  priority,
-		createdAt: time.Now(),
+		ID:        uuid.New(),
+		ProjectID: projectId,
+		Name:      columnName,
+		Priority:  priority,
+		CreatedAt: time.Now(),
 	}
 	return column, err
 }

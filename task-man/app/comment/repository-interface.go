@@ -8,8 +8,7 @@ const (
 )
 
 type CommentsRepository interface {
-	FindNotDeleted() (CommentsCollection, error)
-	FindById(id uuid.UUID) (Comment, error)
+	FindById(id uuid.UUID, withDeleted bool) (Comment, error)
 	FindForTasks(tasksIDs []uuid.UUID, withDeleted bool) (CommentsCollection, error)
 	Save(comment Comment) error
 	BatchUpdate(comments CommentsCollection) error
