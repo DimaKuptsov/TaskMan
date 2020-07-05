@@ -2,7 +2,6 @@ package projects
 
 import (
 	"errors"
-	"fmt"
 	"github.com/DimaKuptsov/task-man/app"
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	"github.com/DimaKuptsov/task-man/app/project"
@@ -25,7 +24,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 	name := r.Form.Get(ProjectNameField)
 	if name == "" {
-		err = errors.New(fmt.Sprintf("missing required field \"%s\"", ProjectNameField))
+		err = errors.New(httpErrors.GetMissingParameterErrorMessage(ProjectNameField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}

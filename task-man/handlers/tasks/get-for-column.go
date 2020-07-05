@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"errors"
-	"fmt"
 	"github.com/DimaKuptsov/task-man/app"
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	httpErrors "github.com/DimaKuptsov/task-man/handlers/error"
@@ -19,13 +18,13 @@ func GetForColumn(w http.ResponseWriter, r *http.Request) {
 	responseSender := helper.NewResponseSender(appLogger)
 	id := chi.URLParam(r, ColumnIDField)
 	if id == "" {
-		err := errors.New(fmt.Sprintf("missing required field \"%s\"", ColumnIDField))
+		err := errors.New(httpErrors.GetMissingParameterErrorMessage(ColumnIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}
 	columnID, err := uuid.Parse(id)
 	if err != nil || columnID.String() == "" {
-		err = errors.New(fmt.Sprintf("invalid parameter \"%s\"", ColumnIDField))
+		err = errors.New(httpErrors.GetBadParameterErrorMessage(ColumnIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}

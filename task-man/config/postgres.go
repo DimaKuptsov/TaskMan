@@ -5,7 +5,8 @@ import cfg "github.com/Yalantis/go-config"
 type Postgres struct {
 	Host         string       `json:"host"          envconfig:"POSTGRES_HOST"          default:"localhost"`
 	Port         string       `json:"port"          envconfig:"POSTGRES_PORT"          default:"5432"`
-	Database     string       `json:"database"      envconfig:"POSTGRES_DB_NAME"       default:"task-man"`
+	Database     string       `json:"database"      envconfig:"POSTGRES_DATABASE"      default:"task-man"`
+	TestDatabase string       `json:"test-database" envconfig:"POSTGRES_TEST_DATABASE" default:"task-man-test"`
 	User         string       `json:"user"          envconfig:"POSTGRES_USER"          default:"root"`
 	Password     string       `json:"password"      envconfig:"POSTGRES_PASSWORD"      default:"root"`
 	PoolSize     int          `json:"pool_size"     envconfig:"POSTGRES_POOL_SIZE"     default:"10"`

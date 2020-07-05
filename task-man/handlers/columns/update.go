@@ -2,7 +2,6 @@ package columns
 
 import (
 	"errors"
-	"fmt"
 	"github.com/DimaKuptsov/task-man/app"
 	"github.com/DimaKuptsov/task-man/app/column"
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
@@ -27,19 +26,19 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 	id := r.Form.Get(ColumnIDField)
 	if id == "" {
-		err = errors.New(fmt.Sprintf("missing required field \"%s\"", ColumnIDField))
+		err = errors.New(httpErrors.GetMissingParameterErrorMessage(ColumnIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}
-	projectID, err := uuid.Parse(id)
-	if err != nil || projectID.String() == "" {
-		err = errors.New(fmt.Sprintf("invalid parameter \"%s\"", ColumnIDField))
+	columnID, err := uuid.Parse(id)
+	if err != nil || columnID.String() == "" {
+		err = errors.New(httpErrors.GetBadParameterErrorMessage(ColumnIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewUnprocessableEntityError(err))
 		return
 	}
 	name := r.Form.Get(ColumnNameField)
 	updateDTO := column.UpdateDTO{
-		ID:   projectID,
+		ID:   columnID,
 		Name: name,
 	}
 	priorityStr := r.Form.Get(ColumnPriorityField)
@@ -51,7 +50,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	if priorityStr != "" {
 		priority, err := strconv.Atoi(priorityStr)
 		if err != nil {
-			err = errors.New(fmt.Sprintf("invalid parameter \"%s\"", ColumnPriorityField))
+			err = errors.New(httpErrors.GetBadParameterErrorMessage(ColumnPriorityField))
 			responseSender.SendErrorResponse(w, httpErrors.NewUnprocessableEntityError(err))
 			return
 		}

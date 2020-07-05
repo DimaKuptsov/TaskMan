@@ -2,7 +2,6 @@ package columns
 
 import (
 	"errors"
-	"fmt"
 	"github.com/DimaKuptsov/task-man/app"
 	"github.com/DimaKuptsov/task-man/app/column"
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
@@ -26,19 +25,19 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 	id := r.Form.Get(ProjectIDField)
 	if id == "" {
-		err := errors.New(fmt.Sprintf("missing required field \"%s\"", ProjectIDField))
+		err := errors.New(httpErrors.GetMissingParameterErrorMessage(ProjectIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}
 	projectID, err := uuid.Parse(id)
 	if err != nil || projectID.String() == "" {
-		err = errors.New(fmt.Sprintf("invalid parameter \"%s\"", ProjectIDField))
+		err = errors.New(httpErrors.GetBadParameterErrorMessage(ProjectIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewUnprocessableEntityError(err))
 		return
 	}
 	name := r.Form.Get(ColumnNameField)
 	if name == "" {
-		err = errors.New(fmt.Sprintf("missing required field \"%s\"", ColumnNameField))
+		err = errors.New(httpErrors.GetMissingParameterErrorMessage(ColumnNameField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}

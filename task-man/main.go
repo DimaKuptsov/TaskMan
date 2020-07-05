@@ -8,8 +8,10 @@ import (
 	"net/http"
 )
 
+const DefaultConfigFilePath = "config.json"
+
 func main() {
-	err := config.InitFromFile(config.DefaultConfigFilePath)
+	err := config.InitFromFile(DefaultConfigFilePath)
 	if err != nil {
 		log.Fatalf("Failed to initialize config: %s", err.Error())
 	}

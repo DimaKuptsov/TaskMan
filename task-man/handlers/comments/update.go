@@ -2,7 +2,6 @@ package comments
 
 import (
 	"errors"
-	"fmt"
 	"github.com/DimaKuptsov/task-man/app"
 	"github.com/DimaKuptsov/task-man/app/comment"
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
@@ -26,19 +25,19 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 	id := r.Form.Get(CommentIDField)
 	if id == "" {
-		err = errors.New(fmt.Sprintf("missing required field \"%s\"", CommentIDField))
+		err = errors.New(httpErrors.GetMissingParameterErrorMessage(CommentIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}
 	commentID, err := uuid.Parse(id)
 	if err != nil || commentID.String() == "" {
-		err = errors.New(fmt.Sprintf("invalid parameter \"%s\"", CommentIDField))
+		err = errors.New(httpErrors.GetBadParameterErrorMessage(CommentIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewUnprocessableEntityError(err))
 		return
 	}
 	text := r.Form.Get(CommentTextField)
 	if text == "" {
-		err = errors.New("no parameters for updating")
+		err = errors.New(httpErrors.GetMissingParameterErrorMessage(CommentTextField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}

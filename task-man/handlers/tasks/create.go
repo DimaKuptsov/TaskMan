@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"errors"
-	"fmt"
 	"github.com/DimaKuptsov/task-man/app"
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	"github.com/DimaKuptsov/task-man/app/task"
@@ -26,19 +25,19 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 	id := r.Form.Get(ColumnIDField)
 	if id == "" {
-		err := errors.New(fmt.Sprintf("missing required field \"%s\"", ColumnIDField))
+		err := errors.New(httpErrors.GetMissingParameterErrorMessage(ColumnIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}
 	columnID, err := uuid.Parse(id)
 	if err != nil || columnID.String() == "" {
-		err = errors.New(fmt.Sprintf("invalid parameter \"%s\"", ColumnIDField))
+		err = errors.New(httpErrors.GetBadParameterErrorMessage(ColumnIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewUnprocessableEntityError(err))
 		return
 	}
 	name := r.Form.Get(TaskNameField)
 	if name == "" {
-		err = errors.New(fmt.Sprintf("missing required field \"%s\"", TaskNameField))
+		err = errors.New(httpErrors.GetMissingParameterErrorMessage(TaskNameField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}

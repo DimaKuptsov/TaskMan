@@ -2,7 +2,6 @@ package comments
 
 import (
 	"errors"
-	"fmt"
 	"github.com/DimaKuptsov/task-man/app"
 	"github.com/DimaKuptsov/task-man/app/comment"
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
@@ -26,19 +25,19 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 	id := r.Form.Get(TaskIDField)
 	if id == "" {
-		err := errors.New(fmt.Sprintf("missing required field \"%s\"", TaskIDField))
+		err := errors.New(httpErrors.GetMissingParameterErrorMessage(TaskIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}
 	taskID, err := uuid.Parse(id)
 	if err != nil || taskID.String() == "" {
-		err = errors.New(fmt.Sprintf("invalid parameter \"%s\"", TaskIDField))
+		err = errors.New(httpErrors.GetBadParameterErrorMessage(TaskIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewUnprocessableEntityError(err))
 		return
 	}
 	text := r.Form.Get(CommentTextField)
 	if text == "" {
-		err = errors.New(fmt.Sprintf("missing required field \"%s\"", CommentTextField))
+		err = errors.New(httpErrors.GetMissingParameterErrorMessage(CommentTextField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}

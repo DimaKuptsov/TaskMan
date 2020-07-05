@@ -23,5 +23,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB_NAME}
     volumes:
       - ".data/postgres:/var/lib/postgresql"
+      - "./etc/postgres/init.sh:/docker-entrypoint-initdb.d/init.sh"
     ports:
       - 5432:5432
