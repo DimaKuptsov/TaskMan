@@ -3,7 +3,6 @@ package config
 import cfg "github.com/Yalantis/go-config"
 
 const (
-	DefaultConfigFilePath  = "config.json"
 	DevelopmentEnvironment = "dev"
 	ProductionEnvironment  = "prod"
 )

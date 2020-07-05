@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"errors"
-	"fmt"
 	"github.com/DimaKuptsov/task-man/app"
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	"github.com/DimaKuptsov/task-man/app/task"
@@ -21,13 +20,13 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	responseSender := helper.NewResponseSender(appLogger)
 	id := chi.URLParam(r, TaskIDField)
 	if id == "" {
-		err := errors.New(fmt.Sprintf("missing required field \"%s\"", TaskIDField))
+		err := errors.New(httpErrors.GetMissingParameterErrorMessage(TaskIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewBadRequestError(err))
 		return
 	}
 	taskID, err := uuid.Parse(id)
 	if err != nil || taskID.String() == "" {
-		err = errors.New(fmt.Sprintf("invalid parameter \"%s\"", TaskIDField))
+		err = errors.New(httpErrors.GetBadParameterErrorMessage(TaskIDField))
 		responseSender.SendErrorResponse(w, httpErrors.NewUnprocessableEntityError(err))
 		return
 	}
