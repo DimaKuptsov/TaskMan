@@ -5,7 +5,8 @@ import (
 	"github.com/DimaKuptsov/task-man/app/comment"
 	"github.com/DimaKuptsov/task-man/app/project"
 	"github.com/DimaKuptsov/task-man/app/task"
-	"github.com/DimaKuptsov/task-man/mock"
+	"github.com/DimaKuptsov/task-man/db/postgres/repository"
+	"github.com/DimaKuptsov/task-man/logger"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -16,37 +17,55 @@ type AppService struct {
 	commentsService comment.CommentsService
 }
 
-func GetAppService() AppService {
-	projectsRepository := mock.ProjectRepoMock()
-	columnsRepository := mock.ColumnsRepoMock(projectsRepository)
-	tasksRepository := mock.TasksRepoMock(columnsRepository)
-	commentsRepository := mock.CommentsRepoMock(tasksRepository)
+func GetAppService() (service AppService, err error) {
 	validate := validator.New()
+	appLogger := logger.GetLogger()
+	commentsRepository, err := repository.NewCommentsRepository()
+	if err != nil {
+		return service, err
+	}
 	commentsService := comment.CommentsService{
 		Validate:           validate,
 		CommentsRepository: commentsRepository,
+		Logger:             appLogger,
+	}
+	tasksRepository, err := repository.NewTasksRepository()
+	if err != nil {
+		return service, err
 	}
 	tasksService := task.TasksService{
 		Validate:        validate,
 		TasksRepository: tasksRepository,
 		CommentsService: commentsService,
+		Logger:          appLogger,
+	}
+	columnsRepository, err := repository.NewColumnsRepository()
+	if err != nil {
+		return service, err
 	}
 	columnsService := column.ColumnsService{
 		Validate:          validate,
 		ColumnsRepository: columnsRepository,
 		TasksService:      tasksService,
+		Logger:            appLogger,
+	}
+	projectsRepository, err := repository.NewProjectsRepository()
+	if err != nil {
+		return service, err
 	}
 	projectsService := project.ProjectsService{
 		Validate:       validate,
 		Repository:     projectsRepository,
 		ColumnsService: columnsService,
+		Logger:         appLogger,
 	}
-	return AppService{
+	service = AppService{
 		projectsService: projectsService,
 		columnsService:  columnsService,
 		tasksService:    tasksService,
 		commentsService: commentsService,
 	}
+	return service, err
 }
 
 func (as AppService) ProjectsService() project.ProjectsService {

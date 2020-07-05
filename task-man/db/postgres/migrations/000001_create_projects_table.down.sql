@@ -1,0 +1,6 @@
+BEGIN;
+
+DROP TABLE IF EXISTS projects;
+DROP EXTENSION IF EXISTS "uuid-ossp";
+
+COMMIT;

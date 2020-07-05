@@ -19,10 +19,17 @@ func (pc *ProjectsCollection) Len() int {
 	return len(pc.Projects)
 }
 
-func (pc *ProjectsCollection) Add(project Project) {
-	pc.Projects = append(pc.Projects, project)
+func (pc *ProjectsCollection) Add(project ...Project) {
+	pc.Projects = append(pc.Projects, project...)
+}
+
+func (pc ProjectsCollection) IsEmpty() bool {
+	return len(pc.Projects) == 0
 }
 
 func (pc ProjectsCollection) MarshalJSON() ([]byte, error) {
+	if pc.IsEmpty() {
+		return []byte("{}"), nil
+	}
 	return json.Marshal(pc.Projects)
 }

@@ -33,12 +33,12 @@ func (f TasksFactory) Create(createDTO CreateTaskDTO) (task Task, err error) {
 	}
 	priority := columnTasks.Len() + 1
 	task = Task{
-		id:          uuid.New(),
-		columnID:    columnId,
-		name:        taskName,
-		description: taskDescription,
-		priority:    priority,
-		createdAt:   time.Now(),
+		ID:          uuid.New(),
+		ColumnID:    columnId,
+		Name:        taskName,
+		Description: taskDescription,
+		Priority:    priority,
+		CreatedAt:   time.Now(),
 	}
 	return task, err
 }

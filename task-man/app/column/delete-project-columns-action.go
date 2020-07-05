@@ -1,13 +1,16 @@
 package column
 
 import (
+	"fmt"
 	"github.com/DimaKuptsov/task-man/app/task"
+	"go.uber.org/zap"
 )
 
 type DeleteProjectColumnsAction struct {
 	DTO               DeleteProjectColumnsDTO
 	ColumnsRepository ColumnsRepository
 	TasksService      task.TasksService
+	Logger            *zap.Logger
 }
 
 func (action DeleteProjectColumnsAction) Execute() error {
@@ -19,17 +22,15 @@ func (action DeleteProjectColumnsAction) Execute() error {
 }
 
 func (action DeleteProjectColumnsAction) deleteColumns(columnsForDelete ColumnsCollection) error {
+	defer action.Logger.Sync()
 	deletedColumns := ColumnsCollection{}
 	for _, column := range columnsForDelete.Columns {
-		err := column.MarkDeleted()
-		if err != nil {
-			//TODO log
-			continue
-		}
+		column.MarkDeleted()
 		deletedColumns.Add(column)
-		err = action.deleteColumnTasks(column)
+		err := action.deleteColumnTasks(column)
 		if err != nil {
-			//TODO log
+			errMsg := fmt.Sprintf("column tasks delete was fallen: %s", err.Error())
+			action.Logger.Warn(errMsg, zap.String("id", column.GetID().String()))
 			continue
 		}
 	}

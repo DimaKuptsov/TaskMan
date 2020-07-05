@@ -1,12 +1,16 @@
 package task
 
+import "go.uber.org/zap"
+
 type ChangeTasksColumnAction struct {
 	DTO        ChangeTasksColumnDTO
 	Repository TasksRepository
+	Logger     *zap.Logger
 }
 
 func (action ChangeTasksColumnAction) Execute() error {
-	tasks, err := action.Repository.FindByIds(action.DTO.TasksIDs)
+	defer action.Logger.Sync()
+	tasks, err := action.Repository.FindByIds(action.DTO.TasksIDs, WithoutDeletedTasks)
 	if err != nil {
 		return err
 	}
@@ -17,7 +21,10 @@ func (action ChangeTasksColumnAction) Execute() error {
 		}
 		err = task.ChangeColumnID(action.DTO.ColumnID)
 		if err != nil {
-			//TODO log
+			action.Logger.Warn(
+				"not changed task for column %s",
+				zap.String("new_task_id", action.DTO.ColumnID.String()),
+			)
 			continue
 		}
 		tasksForUpdate.Add(task)

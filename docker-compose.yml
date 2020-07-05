@@ -8,5 +8,20 @@ services:
       - "./task-man:/go/src/task-man"
     working_dir: "/go/src/task-man"
     command: "go run main.go"
+    depends_on:
+      - task-man-postgres
     ports:
       - 80:80
+
+  task-man-postgres:
+    container_name: "task-man-pg"
+    image: "postgres"
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB_NAME}
+    volumes:
+      - ".data/postgres:/var/lib/postgresql"
+    ports:
+      - 5432:5432

@@ -22,10 +22,10 @@ func (f CommentsFactory) Create(createDTO CreateDTO) (comment Comment, err error
 		return comment, appErrors.ValidationError{Field: TextField, Message: err.Error()}
 	}
 	comment = Comment{
-		id:        uuid.New(),
-		taskID:    taskId,
-		text:      commentText,
-		createdAt: time.Now(),
+		ID:        uuid.New(),
+		TaskID:    taskId,
+		Text:      commentText,
+		CreatedAt: time.Now(),
 	}
 	return comment, err
 }

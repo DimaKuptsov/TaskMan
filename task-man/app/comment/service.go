@@ -4,18 +4,20 @@ import (
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type CommentsService struct {
 	Validate           *validator.Validate
 	CommentsRepository CommentsRepository
+	Logger             *zap.Logger
 }
 
 func (cs CommentsService) GetById(commentID uuid.UUID) (comment Comment, err error) {
 	if commentID.String() == "" {
 		return comment, appErrors.ValidationError{Field: IDField, Message: "comment id should be in the uuid format"}
 	}
-	return cs.CommentsRepository.FindById(commentID)
+	return cs.CommentsRepository.FindById(commentID, WithoutDeletedComments)
 }
 
 func (cs CommentsService) GetForTask(taskID uuid.UUID) (comments CommentsCollection, err error) {

@@ -5,19 +5,21 @@ import (
 	appErrors "github.com/DimaKuptsov/task-man/app/error"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type TasksService struct {
 	Validate        *validator.Validate
 	TasksRepository TasksRepository
 	CommentsService comment.CommentsService
+	Logger          *zap.Logger
 }
 
 func (ts TasksService) GetById(taskID uuid.UUID) (task Task, err error) {
 	if taskID.String() == "" {
 		return task, appErrors.ValidationError{Field: IDField, Message: "task id should be in the uuid format"}
 	}
-	return ts.TasksRepository.FindById(taskID)
+	return ts.TasksRepository.FindById(taskID, WithoutDeletedTasks)
 }
 
 func (ts TasksService) GetForColumn(columnID uuid.UUID) (tasks TasksCollection, err error) {
@@ -54,6 +56,7 @@ func (ts TasksService) ChangeTasksColumn(changeTasksColumnDTO ChangeTasksColumnD
 	changeTasksColumnAction := ChangeTasksColumnAction{
 		DTO:        changeTasksColumnDTO,
 		Repository: ts.TasksRepository,
+		Logger:     ts.Logger,
 	}
 	return changeTasksColumnAction.Execute()
 }

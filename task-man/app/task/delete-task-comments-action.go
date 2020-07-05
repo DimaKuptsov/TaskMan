@@ -18,17 +18,13 @@ func (action DeleteTasksAction) Execute() error {
 }
 
 func (action DeleteTasksAction) deleteTasks() error {
-	tasksForDelete, err := action.TasksRepository.FindByIds(action.DTO.TasksIDs)
+	tasksForDelete, err := action.TasksRepository.FindByIds(action.DTO.TasksIDs, WithoutDeletedTasks)
 	if err != nil {
-		return nil
+		return err
 	}
 	deletedTasks := TasksCollection{}
 	for _, task := range tasksForDelete.Tasks {
-		err = task.MarkDeleted()
-		if err != nil {
-			//TODO log
-			continue
-		}
+		task.MarkDeleted()
 		deletedTasks.Add(task)
 	}
 	return action.TasksRepository.BatchUpdate(deletedTasks)

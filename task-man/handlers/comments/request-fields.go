@@ -1,7 +1,7 @@
 package comments
 
 const (
-	TaskIDField      = "projectId"
+	TaskIDField      = "taskId"
 	CommentIDField   = "id"
-	CommentTextField = "name"
+	CommentTextField = "text"
 )

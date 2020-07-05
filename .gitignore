@@ -1,6 +1,9 @@
 # IDE
 .idea/
 
+# DB data
+.data/
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -17,4 +20,6 @@
 # Dependency directories
 */vendor/
 
+.env
 */go.sum
+*/config.json

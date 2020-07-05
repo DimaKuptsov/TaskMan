@@ -8,7 +8,7 @@ const (
 )
 
 type ColumnsRepository interface {
-	FindById(id uuid.UUID) (Column, error)
+	FindById(id uuid.UUID, withDeleted bool) (Column, error)
 	FindForProject(projectID uuid.UUID, withDeleted bool) (ColumnsCollection, error)
 	Save(column Column) error
 	Update(column Column) error

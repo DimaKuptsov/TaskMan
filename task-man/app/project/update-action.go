@@ -6,7 +6,7 @@ type UpdateProjectAction struct {
 }
 
 func (action UpdateProjectAction) Execute() (updatedProject Project, err error) {
-	updatedProject, err = action.Repository.FindById(action.DTO.ID)
+	updatedProject, err = action.Repository.FindById(action.DTO.ID, WithoutDeletedProjects)
 	if err != nil {
 		return
 	}
@@ -24,5 +24,6 @@ func (action UpdateProjectAction) Execute() (updatedProject Project, err error) 
 			return
 		}
 	}
+	err = action.Repository.Update(updatedProject)
 	return updatedProject, err
 }

@@ -19,10 +19,17 @@ func (cc *CommentsCollection) Len() int {
 	return len(cc.Comments)
 }
 
-func (cc *CommentsCollection) Add(comment Comment) {
-	cc.Comments = append(cc.Comments, comment)
+func (cc *CommentsCollection) Add(comment ...Comment) {
+	cc.Comments = append(cc.Comments, comment...)
+}
+
+func (cc CommentsCollection) IsEmpty() bool {
+	return len(cc.Comments) == 0
 }
 
 func (cc CommentsCollection) MarshalJSON() ([]byte, error) {
+	if cc.IsEmpty() {
+		return []byte("{}"), nil
+	}
 	return json.Marshal(cc.Comments)
 }
