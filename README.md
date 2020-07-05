@@ -41,176 +41,200 @@ The back-end part of the simple task manager.
 
 [Postman collection](https://www.getpostman.com/collections/40aa541aa0bbb2b7ff88) for test
 
-####Projects:
-#####Get all:
-__Method:__ GET
+### Projects:
 
-__URL:__ {host}/projects/all
+__Get all:__
 
-#####Get by ID:
-*Method:* GET
+_Method:_ GET
 
-*URL:* {host}/projects/{id}
+_URL:_ `{host}/projects/all`
 
-*Params:*
-* id - uuid, required
+__Get by ID:__
 
-#####Create:
-*Method:* POST
+_Method:_ GET
 
-*URL:* {host}/projects/create
+_URL:_ `{host}/projects/{id}`
 
-*Params:*
-* name - string, min length 1, max length 500, required
-* description - string, max length 1000
+_Params:_
+* __id__ - uuid, required
 
-#####Update:
-*Method:* PUT
+__Create:__
 
-*URL:* {host}/projects/update
+_Method:_ POST
 
-*Params:*
-* id - uuid, required
-* name - string, min length 1, max length 500
-* description - string, max length 1000
+_URL:_ `{host}/projects/create`
 
-#####Delete:
-*Method:* DELETE
+_Params:_
+* __name__ - string, min length 1, max length 500, required
+* __description__ - string, max length 1000
 
-*URL:* {host}/projects/delete/{id}
+__Update:__
 
-*Params:*
-* id - uuid, required
+_Method:_ PUT
 
-####Columns:
-#####Get for the project:
-__Method:__ GET
+_URL:_ `{host}/projects/update`
 
-__URL:__ {host}/columns/project/{projectId}
+_Params:_
+* __id__ - uuid, required
+* __name__ - string, min length 1, max length 500
+* __description__ - string, max length 1000
 
-*Params:*
-* projectId - uuid, required
+__Delete:__
 
-#####Get by ID:
-*Method:* GET
+_Method:_ DELETE
 
-*URL:* {host}/columns/{id}
+_URL:_ `{host}/projects/delete/{id}`
 
-*Params:*
-* id - uuid, required
+_Params:_
+* __id__ - uuid, required
 
-#####Create:
-*Method:* POST
+### Columns:
 
-*URL:* {host}/columns/create
+__Get for the project:__
 
-*Params:*
-* projectId - uuid, required
-* name - string, min length 1, max length 255, required
+_Method:_ GET
 
-#####Update:
-*Method:* PUT
+_URL:_ `{host}/columns/project/{projectId}`
 
-*URL:* {host}/columns/update
+_Params:_
+* __projectId__ - uuid, required
 
-*Params:*
-* id - uuid, required
-* name - string, min length 1, max length 255
-* priority - integer, min 1
+__Get by ID:__
 
-#####Delete:
-*Method:* DELETE
+_Method:_ GET
 
-*URL:* {host}/columns/delete/{id}
+_URL:_ `{host}/columns/{id}`
 
-*Params:*
-* id - uuid, required
+_Params:_
+* __id__ - uuid, required
 
-####Tasks:
-#####Get for the column:
-__Method:__ GET
+__Create:__
 
-__URL:__ {host}/tasks/column/{columnId}
+_Method:_ POST
 
-*Params:*
-* columnId - uuid, required
+_URL:_ `{host}/columns/create`
 
-#####Get by ID:
-*Method:* GET
+_Params:_
+* __projectId__ - uuid, required
+* __name__ - string, min length 1, max length 255, required
 
-*URL:* {host}/tasks/{id}
+__Update:__
 
-*Params:*
-* id - uuid, required
+_Method:_ PUT
 
-#####Create:
-*Method:* POST
+_URL:_ `{host}/columns/update`
 
-*URL:* {host}/tasks/create
+_Params:_
+* __id__ - uuid, required
+* __name__ - string, min length 1, max length 255
+* __priority__ - integer, min 1
 
-*Params:*
-* columnId - uuid, required
-* name - string, min length 1, max length 500, required
-* description - string, max length 5000
+__Delete:__
 
-#####Update:
-*Method:* PUT
+_Method:_ DELETE
 
-*URL:* {host}/tasks/update
+_URL:_ `{host}/columns/delete/{id}`
 
-*Params:*
-* id - uuid, required
-* name - string, min length 1, max length 500
-* description - string, max length 5000
-* priority - integer, min 1
+_Params:_
+* __id__ - uuid, required
 
-#####Delete:
-*Method:* DELETE
+### Tasks:
 
-*URL:* {host}/tasks/delete/{id}
+__Get for the column:__
 
-*Params:*
-* id - uuid, required
+_Method:_ GET
 
-####Comments:
-#####Get for the task:
-__Method:__ GET
+_URL:_ `{host}/tasks/column/{columnId}`
 
-__URL:__ {host}/comments/task/{taskId}
+_Params:_
+* __columnId__ - uuid, required
 
-*Params:*
-* taskId - uuid, required
+__Get by ID:__
 
-#####Get by ID:
-*Method:* GET
+_Method:_ GET
 
-*URL:* {host}/comments/{id}
+_URL:_ `{host}/tasks/{id}`
 
-*Params:*
-* id - uuid, required
+_Params:_
+* __id__ - uuid, required
 
-#####Create:
-*Method:* POST
+__Create:__
 
-*URL:* {host}/comments/create
+_Method:_ POST
 
-*Params:*
-* taskId - uuid, required
-* text - string, min length 1, max length 5000, required
+_URL:_ `{host}/tasks/create`
 
-#####Update:
-*Method:* PUT
+_Params:_
+* __columnId__ - uuid, required
+* __name__ - string, min length 1, max length 500, required
+* __description__ - string, max length 5000
 
-*URL:* {host}/comments/update
+__Update:__
 
-*Params:*
-* id - uuid, required
-* text - string, min length 1, max length 5000, required
+_Method:_ PUT
 
-#####Delete:
-*Method:* DELETE
+_URL:_ `{host}/tasks/update`
 
-*URL:* {host}/comments/delete/{id}
+_Params:_
+* __id__ - uuid, required
+* __name__ - string, min length 1, max length 500
+* __description__ - string, max length 5000
+* __priority__ - integer, min 1
 
-*Params:*
-* id - uuid, required
+__Delete:__
+
+_Method:_ DELETE
+
+_URL:_ `{host}/tasks/delete/{id}`
+
+_Params:_
+* __id__ - uuid, required
+
+### Comments:
+
+__Get for the task:__
+
+_Method:_ GET
+
+_URL:_ `{host}/comments/task/{taskId}`
+
+_Params:_
+* __taskId__ - uuid, required
+
+__Get by ID:__
+
+_Method:_ GET
+
+_URL:_ `{host}/comments/{id}`
+
+_Params:_
+* __id__ - uuid, required
+
+__Create:__
+
+_Method:_ POST
+
+_URL:_ `{host}/comments/create`
+
+_Params:_
+* __taskId__ - uuid, required
+* __text__ - string, min length 1, max length 5000, required
+
+__Update:__
+
+_Method:_ PUT
+
+_URL:_ `{host}/comments/update`
+
+_Params:_
+* __id__ - uuid, required
+* __text__ - string, min length 1, max length 5000, required
+
+__Delete:__
+
+_Method:_ DELETE
+
+_URL:_ `{host}/comments/delete/{id}`
+
+_Params:_
+* __id__ - uuid, required
